@@ -1,95 +1,135 @@
+"use client";
+
 import Image from "next/image";
 import styles from "./page.module.css";
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [generatedPassword, setGeneratedPassword] = useState("");
+  const [formData, setFormData] = useState({
+    passwordLength: 4,
+    useSepcial: false,
+    useNumber: false,
+    useAlphabet: false,
+  });
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const generatePassword = () => {
+    let char = "abcdefghijklmnopqrstuvwxyz";
+    if (formData.useAlphabet) {
+      char += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    }
+    if (formData.useNumber) {
+      char += "0123456789";
+    }
+    if (formData.useSepcial) {
+      char += "!@#$%^&*()-_=+[{]};:'\",<.>/?";
+    }
+    let randomString = "";
+    for (let i = 0; i < formData.passwordLength; i++) {
+      randomString += char[Math.floor(Math.random() * char.length)];
+    }
+    setGeneratedPassword(randomString);
+  };
+
+  const copyPassword = () => {
+    navigator.clipboard.writeText(generatedPassword);
+    alert("Password copied to clipboard!");
+  };
+
+  return (
+    <div className="flex justify-center items-center flex-col min-h-screen">
+      <div className="border border-white p-4 rounded-lg">
+        <div className="my-4">
+          <div>
+            <h1 className="font-semibold text-5xl mb-4">Password Generator</h1>
+          </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
+              <label className="font-semibold text-lg">Password Length</label>
+              <input
+                type="number"
+                min="4"
+                placeholder="Password Length"
+                className="py-2 px-4 rounded-lg"
+                name="passwordLength"
+                value={formData.passwordLength}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="special"
+                name="useSepcial"
+                checked={formData.useSepcial}
+                onChange={handleInputChange}
+              />
+              <label className="ml-2" htmlFor="special">
+                Include Special Characters
+              </label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="numbers"
+                name="useNumber"
+                checked={formData.useNumber}
+                onChange={handleInputChange}
+              />
+              <label className="ml-2" htmlFor="numbers">
+                Include Numbers
+              </label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="capital"
+                name="useAlphabet"
+                checked={formData.useAlphabet}
+                onChange={handleInputChange}
+              />
+              <label className="ml-2" htmlFor="capital">
+                Include Capital Alphabates
+              </label>
+            </div>
+          </div>
+          <div className="my-4">
+            <button
+              className="w-full py-2 px-4 rounded-lg bg-blue-500 text-white"
+              onClick={generatePassword}
+            >
+              Generate Password
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        {generatedPassword && (
+          <div>
+            <hr />
+            <div className="my-4">
+              <h1 className="font-semibold text-3xl mb-4">
+                Generated Password
+              </h1>
+            </div>
+            <div className="w-full flex justify-between bg-gray-500 px-4 py-2 rounded-md my-4">
+              <p>{generatedPassword}</p>
+              <p
+                className="cursor-pointer hover:bg-gray-300 hover:text-black rounded-md px-2"
+                onClick={copyPassword}
+              >
+                Copy
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
